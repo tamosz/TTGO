@@ -163,22 +163,17 @@ void network_menu() {
 
 
 void app_main() {
-    //address of GPIO output enable device register
-    //setting a bit in this makea gpio into an output
-    volatile unsigned *GPIO_OUTPUT_ENABLE=(unsigned *)0x3ff44020;
-    //address of GPIO output device register
-    //each bit is the output value for a gpio (0 or 1)
-    //if it is enabled as an output
-    volatile unsigned *GPIO_OUTPUT=(unsigned *)0x3ff44004;
-    //make gpio 4 an output
+    volatile unsigned *GPIO_OUTPUT_ENABLE=(unsigned *) 0x3ff44020;
+    volatile unsigned *GPIO_OUTPUT_W1TS=(unsigned *) 0x3ff44008;
+    volatile unsigned *GPIO_OUTPUT_W1TC=(unsigned *) 0x3ff4400c;
     *GPIO_OUTPUT_ENABLE |= (1<<4);
     while(1) {
         //set gpio 4 to 1
-        *GPIO_OUTPUT |= (1<<4);
+        *GPIO_OUTPUT_W1TS = (1<<4);
         //wait a short time
         for(volatile int i=0;i<10000000;i++);
         //clear gpio 4
-        *GPIO_OUTPUT &= ~(1<<4);
+        *GPIO_OUTPUT_W1TC = (1<<4);
         //wait a short time
         for(volatile int i=0;i<10000000;i++);
     }
