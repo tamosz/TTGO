@@ -163,52 +163,23 @@ void network_menu() {
 
 
 void app_main() {
-    // initialise button handling
-    input_output_init();
-    // Initialize NVS
-    esp_err_t err = nvs_flash_init();
-    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        // NVS partition was truncated and needs to be erased
-        // Retry nvs_flash_init
-        ESP_ERROR_CHECK(nvs_flash_erase());
-        err = nvs_flash_init();
-    }
-    ESP_ERROR_CHECK( err );
-    // ===== Set time zone to NZ time using custom daylight savings rule======
-    // if you are anywhere else in the world, this will need to be changed
-    setenv("TZ", "NZST-12:00:00NZDT-13:00:00,M9.5.0,M4.1.0", 0);
-    tzset();
-    // initialise graphics and lcd display
-    graphics_init();
-    cls(0);
-    // Initialize the image wave
-    if (DISPLAY_IMAGE_WAVE) image_wave_init();
-    // main menu
-    int sel=0;
+    //address of GPIO output enable device register
+    //setting a bit in this makea gpio into an output
+    volatile unsigned *GPIO_OUTPUT_ENABLE=(unsigned *)0x3ff44020;
+    //address of GPIO output device register
+    //each bit is the output value for a gpio (0 or 1)
+    //if it is enabled as an output
+    volatile unsigned *GPIO_OUTPUT=(unsigned *)0x3ff44004;
+    //make gpio 4 an output
+    *GPIO_OUTPUT_ENABLE |= (1<<4);
     while(1) {
-        char *entries[]={"Graphics","Networking","Leds",
-                        "Teapots","Bubble Game",
-                        get_orientation()?"Landscape":"Portrait"};
-        sel=demo_menu("Demo",sizeof(entries)/sizeof(char *),entries,sel);
-        switch(sel) {
-            case 0:
-                graphics_menu();
-                break;
-            case 1:
-                network_menu();
-                break;
-            case 2:
-                led_menu();
-                break;
-            case 3:
-                teapots_demo();
-                break;
-            case 4:
-                bubble_demo();
-                break;
-            case 5:
-                set_orientation(1-get_orientation());
-                break;
-        }
+        //set gpio 4 to 1
+        *GPIO_OUTPUT |= (1<<4);
+        //wait a short time
+        for(volatile int i=0;i<10000000;i++);
+        //clear gpio 4
+        *GPIO_OUTPUT &= ~(1<<4);
+        //wait a short time
+        for(volatile int i=0;i<10000000;i++);
     }
 }
