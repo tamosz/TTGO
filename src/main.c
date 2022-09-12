@@ -4,6 +4,7 @@
 #include <driver/gpio.h>
 
 #include <esp_system.h>
+#include <esp_timer.h>
 #include <esp_wifi.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/event_groups.h>
@@ -160,7 +161,10 @@ void network_menu() {
     }
 }
 
-
+void delay_us(int n) {
+    uint64_t time=esp_timer_get_time()+n;
+    while(esp_timer_get_time()<time);
+}
 
 void app_main() {
     volatile unsigned *GPIO_OUTPUT_ENABLE=(unsigned *) 0x3ff44020;
@@ -171,10 +175,10 @@ void app_main() {
         //set gpio 4 to 1
         *GPIO_OUTPUT_W1TS = (1<<4);
         //wait a short time
-        for(volatile int i=0;i<10000000;i++);
+        delay_us(500000);
         //clear gpio 4
         *GPIO_OUTPUT_W1TC = (1<<4);
         //wait a short time
-        for(volatile int i=0;i<10000000;i++);
+        delay_us(500000);
     }
 }
