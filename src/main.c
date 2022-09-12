@@ -167,18 +167,14 @@ void delay_us(int n) {
 }
 
 void app_main() {
-    volatile unsigned *GPIO_OUTPUT_ENABLE=(unsigned *) 0x3ff44020;
-    volatile unsigned *GPIO_OUTPUT_W1TS=(unsigned *) 0x3ff44008;
-    volatile unsigned *GPIO_OUTPUT_W1TC=(unsigned *) 0x3ff4400c;
-    *GPIO_OUTPUT_ENABLE |= (1<<4);
-    while(1) {
-        //set gpio 4 to 1
-        *GPIO_OUTPUT_W1TS = (1<<4);
-        //wait a short time
-        delay_us(500000);
-        //clear gpio 4
-        *GPIO_OUTPUT_W1TC = (1<<4);
-        //wait a short time
-        delay_us(500000);
+    gpio_set_direction(4, GPIO_MODE_OUTPUT);
+    gpio_set_direction(0, GPIO_MODE_INPUT);
+    gpio_set_direction(35, GPIO_MODE_INPUT);
+    while(1){
+        gpio_set_level(4,1);
+        vTaskDelay(100);
+        gpio_set_level(4, 0);
+        vTaskDelay(100);
+        printf("GPIOS %d %d\n",gpio_get_level(0),gpio_get_level(35));
     }
 }
